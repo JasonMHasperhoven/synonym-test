@@ -1,5 +1,7 @@
 import { User, UsersResponse } from '../types/user';
 import { db } from './indexedDb';
+import Fuse from 'fuse.js';
+import uniqBy from 'lodash/uniqBy';
 import { create } from 'zustand';
 
 interface UsersState {
@@ -12,7 +14,14 @@ interface UsersState {
       error: string | null;
     };
   };
+  search: {
+    input: string;
+    users: User[];
+    isLoading: boolean;
+    error: string | null;
+  };
   loadUsers: (page: number, usersResp: UsersResponse | null) => void;
+  searchUsers: (search: string) => void;
 }
 
 export const useUsersStore = create<UsersState>()((set) => ({
@@ -23,8 +32,15 @@ export const useUsersStore = create<UsersState>()((set) => ({
       error: null
     }
   },
+  search: {
+    input: '',
+    users: [],
+    isLoading: false,
+    error: null
+  },
   loadUsers: async (page: number, usersResp: UsersResponse | null) => {
     set((prev) => ({
+      ...prev,
       data: {
         ...prev.data,
         [page]: { users: [], isLoading: true, error: null }
@@ -55,6 +71,7 @@ export const useUsersStore = create<UsersState>()((set) => ({
       const users = data?.users || [];
 
       set((prev) => ({
+        ...prev,
         data: {
           ...prev.data,
           [page]: { users, isLoading: false, error: null }
@@ -62,9 +79,63 @@ export const useUsersStore = create<UsersState>()((set) => ({
       }));
     } catch (error) {
       set((prev) => ({
+        ...prev,
         data: {
           ...prev.data,
           [page]: { users: [], isLoading: false, error: error as string }
+        }
+      }));
+    }
+  },
+  searchUsers: async (search: string) => {
+    if (!search.trim()) {
+      return;
+    }
+
+    set((prev) => ({
+      ...prev,
+      search: {
+        input: search,
+        users: prev.search.input === search ? prev.search.users : [],
+        isLoading: true,
+        error: null
+      }
+    }));
+
+    try {
+      const allPages = await db.usersByPage.toArray();
+      const allUsers = allPages.flatMap((pageData) => pageData.users);
+
+      const fuse = new Fuse(allUsers, {
+        keys: [
+          { name: 'name.first', weight: 0.5 },
+          { name: 'name.last', weight: 0.5 }
+        ],
+        threshold: 0.3
+      });
+
+      const searchResults = fuse.search(search);
+
+      set((prev) => ({
+        ...prev,
+        search: {
+          input: search,
+          users: uniqBy(
+            searchResults.map((result) => result.item),
+            'id.value'
+          ),
+          isLoading: false,
+          error: null
+        }
+      }));
+    } catch (error) {
+      set((prev) => ({
+        ...prev,
+        search: {
+          input: search,
+          users: [],
+          isLoading: false,
+          error: error as string
         }
       }));
     }
