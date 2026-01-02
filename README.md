@@ -1,3 +1,18 @@
+# Notes
+
+- SSR pagination is handled by the routes (/page/1 /page/2 etc)
+- Fetching is done using React server components
+- Flow of data is: API -> IndexedDB -> Zustand -> UI
+- Data persists even when offline
+- Error handling is done with toast messages
+- UI has a placeholder loading state
+- App uses client-side navigations (avoiding page reloads)
+- Has dark support
+- Is responsive (not much but demonstrable)
+- Has a scrappy search (though didnt test it properly!)
+- Would've added test coverage given more time (and sorting/ordering)
+
+
 # Next.js 16 Starter
 
 
