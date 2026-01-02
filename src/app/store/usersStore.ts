@@ -12,7 +12,7 @@ interface UsersState {
       error: string | null;
     };
   };
-  loadUsers: (page: number, usersResp: UsersResponse) => void;
+  loadUsers: (page: number, usersResp: UsersResponse | null) => void;
 }
 
 export const useUsersStore = create<UsersState>()((set) => ({
@@ -23,7 +23,7 @@ export const useUsersStore = create<UsersState>()((set) => ({
       error: null
     }
   },
-  loadUsers: async (page: number, usersResp: UsersResponse) => {
+  loadUsers: async (page: number, usersResp: UsersResponse | null) => {
     set((prev) => ({
       data: {
         ...prev.data,
@@ -46,7 +46,7 @@ export const useUsersStore = create<UsersState>()((set) => ({
 
     try {
       // save users to IndexedDb
-      if (usersResp.results) {
+      if (usersResp?.results) {
         await db.usersByPage.put({ page, users: usersResp.results });
       }
 

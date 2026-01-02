@@ -56,3 +56,7 @@ export interface UsersResponse {
   };
   results: User[];
 }
+
+export interface UsersError {
+  error: string;
+}

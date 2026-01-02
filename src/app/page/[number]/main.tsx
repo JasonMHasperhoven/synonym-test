@@ -5,14 +5,24 @@ import { useEffect } from 'react';
 import { NavButton } from '@/app/components/NavButton';
 import { UserComponent } from '@/app/components/User';
 import { UserPlaceholder } from '@/app/components/UserPlaceholder';
+import { useNetworkStatus } from '@/app/hooks/useNetworkStatus';
 import { selectUsersByPage, useUsersStore } from '@/app/store/usersStore';
 import { User, UsersResponse } from '@/app/types/user';
 
 import { toast } from 'sonner';
 
-function Main({ usersResp, page }: { usersResp: UsersResponse; page: number }) {
+function Main({
+  usersResp,
+  ssrError,
+  page
+}: {
+  usersResp: UsersResponse | null;
+  ssrError: string | null;
+  page: number;
+}) {
   const { loadUsers, data } = useUsersStore();
   const { users, isLoading, error } = selectUsersByPage(data, page);
+  const isOnline = useNetworkStatus();
 
   useEffect(() => {
     // 1. push users from API to IndexedDB
@@ -26,11 +36,29 @@ function Main({ usersResp, page }: { usersResp: UsersResponse; page: number }) {
     }
   }, [error]);
 
+  useEffect(() => {
+    if (ssrError) {
+      // allow time to mount toaster
+      requestAnimationFrame(() => {
+        toast.error(ssrError);
+      });
+    }
+  }, [ssrError]);
+
+  useEffect(() => {
+    if (!isOnline) {
+      // allow time to mount toaster
+      requestAnimationFrame(() => {
+        toast.info('You are currently offline and seeing stale results.');
+      });
+    }
+  }, [isOnline]);
+
   return (
     <main className='flex min-h-screen flex-col items-center justify-center gap-4'>
       <h1 className='text-2xl'>Users</h1>
-      <div className='flex flex-col gap-2 rounded-lg bg-gray-800 p-6'>
-        {isLoading
+      <div className='flex flex-col gap-2 rounded-lg bg-white p-4 md:p-6 dark:bg-gray-800'>
+        {isLoading || !users.length
           ? Array.from({ length: 10 }).map((_, index) => (
               <UserPlaceholder key={index} />
             ))
