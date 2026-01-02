@@ -1,7 +1,5 @@
 import { redirect } from 'next/navigation';
 
 export default function Page() {
-    redirect('/page/1');
-
-    return null;
+  redirect('/page/1');
 }

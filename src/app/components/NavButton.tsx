@@ -1,3 +1,5 @@
+import Link from 'next/link';
+
 export const NavButton = ({
   direction,
   href
@@ -6,10 +8,10 @@ export const NavButton = ({
   href: string;
 }) => {
   return (
-    <a
+    <Link
       className='cursor-pointer rounded-lg bg-gray-600 p-2 hover:bg-gray-500'
       href={href}>
       {direction === 'prev' ? <>&larr;</> : <>&rarr;</>}
-    </a>
+    </Link>
   );
 };

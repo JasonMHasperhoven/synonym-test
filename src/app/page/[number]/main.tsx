@@ -11,9 +11,12 @@ import { User, UsersResponse } from '@/app/types/user';
 function Main({ usersResp, page }: { usersResp: UsersResponse; page: number }) {
   const { loadUsers, data } = useUsersStore();
   const { users, isLoading, error } = selectUsersByPage(data, page);
+  console.log('TCL: Main -> error', error);
+  console.log('TCL: Main -> isLoading', isLoading);
+  console.log('TCL: Main -> users', users);
 
   useEffect(() => {
-    // load users from API to the store
+    // load users from IndexedDb and API to the store
     loadUsers(page, usersResp);
   }, [loadUsers, page, usersResp]);
 
@@ -21,7 +24,7 @@ function Main({ usersResp, page }: { usersResp: UsersResponse; page: number }) {
     <main className='flex min-h-screen flex-col items-center justify-center gap-4'>
       <h1 className='text-2xl'>Users</h1>
       <div className='flex flex-col gap-2 rounded-lg bg-gray-800 p-6'>
-        {isLoading
+        {isLoading || isLoading === undefined
           ? Array.from({ length: 10 }).map((_, index) => (
               <UserPlaceholder key={index} />
             ))
