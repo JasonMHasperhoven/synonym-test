@@ -9,7 +9,7 @@ export const NavButton = ({
 }) => {
   return (
     <Link
-      className='cursor-pointer rounded-lg bg-gray-600 p-2 hover:bg-gray-500'
+      className='cursor-pointer rounded-lg bg-gray-600 px-3 py-2 transition-colors hover:bg-gray-500'
       href={href}>
       {direction === 'prev' ? <>&larr;</> : <>&rarr;</>}
     </Link>

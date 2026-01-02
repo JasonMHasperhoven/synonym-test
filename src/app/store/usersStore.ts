@@ -4,6 +4,8 @@ import { create } from 'zustand';
 
 interface UsersState {
   data: {
+    // I chose to use this structure as it allows us
+    // to easily set and access the data for a given page
     [page: number]: {
       users: User[];
       isLoading: boolean;
@@ -31,6 +33,16 @@ export const useUsersStore = create<UsersState>()((set) => ({
 
     // test delay
     // await new Promise((resolve) => setTimeout(resolve, 5000));
+
+    // test error
+    // we could arguably call toast.error here instead of setting the error in the store
+    // but I suppose that's a subjective decision
+    // set((prev) => ({
+    //   data: {
+    //     ...prev.data,
+    //     [page]: { users: [], isLoading: true, error: 'what happened here?' }
+    //   }
+    // }));
 
     try {
       // save users to IndexedDb
